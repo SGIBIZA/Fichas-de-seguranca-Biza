@@ -13,30 +13,30 @@
 <h2>Arquivos da pasta FISPQ</h2>
 <ul id="lista"></ul>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
+
 <script>
   const CLIENT_ID = "https://262364384630-urouu6s0afjs61gq0bgodbck829u1dnn.apps.googleusercontent.com/";
   const FOLDER_ID = "1Lv_60F7YuPqtc8FGxiI-Z4X4t62qMurU";
-
   const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
-  function gapiLoaded() {
-    gapi.load("client", initializeGapiClient);
-  }
+  function start() {
+    gapi.load("client", async () => {
+      await gapi.client.init({
+        clientId: CLIENT_ID,
+        scope: SCOPES,
+        discoveryDocs: [
+          "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"
+        ]
+      });
 
-  async function initializeGapiClient() {
-    await gapi.client.init({
-      clientId: CLIENT_ID,
-      scope: SCOPES,
-      discoveryDocs: [
-        "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"
-      ],
+      listarArquivos();
     });
-
-    listFiles();
   }
 
-  async function listFiles() {
-    const response = await gapi.client.drive.files.list({
+  async function listarArquivos() {
+    const res = await gapi.client.drive.files.list({
       q: `'${FOLDER_ID}' in parents and mimeType='application/pdf' and trashed=false`,
       fields: "files(id,name,webViewLink)",
       orderBy: "name",
@@ -45,18 +45,18 @@
 
     const ul = document.getElementById("lista");
 
-    response.result.files.forEach(file => {
+    res.result.files.forEach(f => {
       const li = document.createElement("li");
       const a = document.createElement("a");
-      a.href = file.webViewLink;
+      a.href = f.webViewLink;
       a.target = "_blank";
-      a.textContent = file.name;
+      a.textContent = f.name;
       li.appendChild(a);
       ul.appendChild(li);
     });
   }
 
-  gapiLoaded();
+  window.onload = start;
 </script>
 
 </body>
