@@ -4,72 +4,38 @@
   <meta charset="UTF-8">
   <title>Teste Catálogo FISPQ</title>
 
-  <!-- Biblioteca oficial Google -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
 
 <h2>Arquivos da pasta FISPQ</h2>
 <ul id="lista"></ul>
 
+  <!-- Biblioteca oficial Google -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script src="https://apis.google.com/js/api.js"></script>
 
 <script>
-  const CLIENT_ID = "262364384630-urouu6s0afjs61gq0bgodbck829u1dnn.apps.googleusercontent.com";
-  const FOLDER_ID = "1Lv_60F7YuPqtc8FGxiI-Z4X4t62qMurU";
-  const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
-
-  function start() {
-    gapi.load("client:auth2", async () => {
-      await gapi.client.init({
-        clientId: CLIENT_ID,
-        scope: SCOPES,
-        discoveryDocs: [
-          "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"
-        ]
-      });
-
-      const auth = gapi.auth2.getAuthInstance();
-
-      // 👉 AQUI está o ponto que faltava
-      if (!auth.isSignedIn.get()) {
-        await auth.signIn();
-      }
-
-      listarArquivos();
-    });
-  }
-
-  async function listarArquivos() {
-    const res = await gapi.client.drive.files.list({
-      q: `'${FOLDER_ID}' in parents and mimeType='application/pdf' and trashed=false`,
-      fields: "files(id,name,webViewLink)",
-      orderBy: "name",
-      pageSize: 1000
-    });
-
+fetch("AKfycbxdXgQ_O3GgdNYAxM1V2JCbOv9FJz5_l6DguNqHnHQ")
+  .then(res => res.json())
+  .then(files => {
     const ul = document.getElementById("lista");
     ul.innerHTML = "";
 
-    if (res.result.files.length === 0) {
-      ul.innerHTML = "<li>Nenhum arquivo encontrado.</li>";
-      return;
-    }
-
-    res.result.files.forEach(f => {
+    files.forEach(f => {
       const li = document.createElement("li");
       const a = document.createElement("a");
-      a.href = f.webViewLink;
-      a.target = "_blank";
+      a.href = f.url;
       a.textContent = f.name;
+      a.target = "_blank";
       li.appendChild(a);
       ul.appendChild(li);
     });
-  }
-
-  window.onload = start;
+  })
+  .catch(err => {
+    document.getElementById("lista").innerHTML =
+      "<li>Erro ao carregar arquivos</li>";
+    console.error(err);
+  });
 </script>
 
 </body>
