@@ -17,12 +17,12 @@
 <script src="https://apis.google.com/js/api.js"></script>
 
 <script>
-  const CLIENT_ID = "https://262364384630-urouu6s0afjs61gq0bgodbck829u1dnn.apps.googleusercontent.com/";
+  const CLIENT_ID = "262364384630-urouu6s0afjs61gq0bgodbck829u1dnn.apps.googleusercontent.com";
   const FOLDER_ID = "1Lv_60F7YuPqtc8FGxiI-Z4X4t62qMurU";
   const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
   function start() {
-    gapi.load("client", async () => {
+    gapi.load("client:auth2", async () => {
       await gapi.client.init({
         clientId: CLIENT_ID,
         scope: SCOPES,
@@ -30,6 +30,13 @@
           "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"
         ]
       });
+
+      const auth = gapi.auth2.getAuthInstance();
+
+      // 👉 AQUI está o ponto que faltava
+      if (!auth.isSignedIn.get()) {
+        await auth.signIn();
+      }
 
       listarArquivos();
     });
@@ -44,6 +51,12 @@
     });
 
     const ul = document.getElementById("lista");
+    ul.innerHTML = "";
+
+    if (res.result.files.length === 0) {
+      ul.innerHTML = "<li>Nenhum arquivo encontrado.</li>";
+      return;
+    }
 
     res.result.files.forEach(f => {
       const li = document.createElement("li");
