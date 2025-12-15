@@ -2,39 +2,69 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Teste Catálogo FISPQ</title>
+  <title>Catálogo FISPQ BIZA</title>
 
+  <!-- CSS externo -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <h2>Arquivos da pasta FISPQ</h2>
-<ul id="lista"></ul>
 
-  <!-- Biblioteca oficial Google -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
+<ul id="lista" class="lista-fispq">
+  <li>Carregando...</li>
+</ul>
 
 <script>
-fetch("AKfycbxdXgQ_O3GgdNYAxM1V2JCbOv9FJz5_l6DguNqHnHQ")
-  .then(res => res.json())
+fetch("https://script.google.com/macros/s/AKfycby54I_vAk2vtiB1pZB5QiLB0mrWzMHUKZuwMKhmuyZbFZypi5njJnDtSJojw_PjbnPZ/exec")
+  .then(res => {
+    if (!res.ok) throw new Error("Erro HTTP " + res.status);
+    return res.json();
+  })
   .then(files => {
     const ul = document.getElementById("lista");
     ul.innerHTML = "";
 
-    files.forEach(f => {
+    // 🔒 FILTRA SOMENTE PDFs
+    const pdfs = files.filter(f =>
+      typeof f.name === "string" &&
+      f.name.toLowerCase().endsWith(".pdf")
+    );
+
+    if (!pdfs.length) {
+      ul.innerHTML = "<li>Nenhum PDF encontrado.</li>";
+      return;
+    }
+
+    pdfs.forEach(f => {
+      // Extrai número inicial (ex: 140)
+      const match = f.name.match(/^(\d+)/);
+      const numero = match ? match[1] : "—";
+
       const li = document.createElement("li");
-      const a = document.createElement("a");
-      a.href = f.url;
-      a.textContent = f.name;
-      a.target = "_blank";
-      li.appendChild(a);
+      li.className = "card-fispq";
+
+      li.innerHTML = `
+        <a class="card-link" href="${f.url}" target="_blank" rel="noopener">
+          
+          <!-- BLOCO VISUAL (SEM IMAGEM) -->
+          <div class="card-img card-img-placeholder"></div>
+
+          <div class="card-body">
+            <div class="card-num">${numero}</div>
+            <div class="card-title">${f.name}</div>
+            <div class="card-action">Abrir PDF</div>
+          </div>
+        </a>
+      `;
+
       ul.appendChild(li);
     });
   })
   .catch(err => {
     document.getElementById("lista").innerHTML =
       "<li>Erro ao carregar arquivos</li>";
-    console.error(err);
+    console.error("Erro:", err);
   });
 </script>
 
