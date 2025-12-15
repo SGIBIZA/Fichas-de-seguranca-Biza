@@ -9,62 +9,155 @@
 </head>
 <body>
 
-<h2>Arquivos da pasta FISPQ</h2>
+<h2>Fichas de segurança BIZA - FISPQ / FDS</h2>
+
+<div class="top-bar">
+  <input
+    type="text"
+    id="busca"
+    placeholder="Buscar ficha..."
+    autocomplete="off"
+  />
+
+  <span id="contador" class="contador">
+    Total: 0 fichas
+  </span>
+</div>
 
 <ul id="lista" class="lista-fispq">
   <li>Carregando...</li>
 </ul>
 
 <script>
+/* =========================
+   FUNÇÕES UTILITÁRIAS
+========================= */
+function normalizarTexto(texto) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function destacar(texto, termo) {
+  if (!termo) return texto;
+  const regex = new RegExp(`(${termo})`, "gi");
+  return texto.replace(regex, `<mark>$1</mark>`);
+}
+
+/* =========================
+   CARREGAMENTO DOS DADOS
+========================= */
 fetch("https://script.google.com/macros/s/AKfycby54I_vAk2vtiB1pZB5QiLB0mrWzMHUKZuwMKhmuyZbFZypi5njJnDtSJojw_PjbnPZ/exec")
-  .then(res => {
-    if (!res.ok) throw new Error("Erro HTTP " + res.status);
-    return res.json();
-  })
+  .then(res => res.json())
   .then(files => {
+
     const ul = document.getElementById("lista");
-    ul.innerHTML = "";
+    const busca = document.getElementById("busca");
+    const contador = document.getElementById("contador");
 
-    // 🔒 FILTRA SOMENTE PDFs
-    const pdfs = files.filter(f =>
-      typeof f.name === "string" &&
-      f.name.toLowerCase().endsWith(".pdf")
-    );
+    /* =========================
+       SEPARAÇÃO POR TIPO
+    ========================= */
+    const imagens = files.filter(f => f.mimeType && f.mimeType.startsWith("image/"));
+    const pdfs = files.filter(f => f.mimeType === "application/pdf");
 
-    if (!pdfs.length) {
-      ul.innerHTML = "<li>Nenhum PDF encontrado.</li>";
-      return;
+    /* =========================
+       MAPA: NÚMERO → IMAGEM
+    ========================= */
+    const imagensPorNumero = {};
+
+    imagens.forEach(img => {
+      const match = img.name.match(/^(\d+)/);
+      if (!match) return;
+
+      const imgId = img.url.match(/\/d\/([^/]+)/)?.[1];
+      if (!imgId) return;
+
+      imagensPorNumero[match[1]] =
+        `https://drive.google.com/thumbnail?id=${imgId}&sz=w600`;
+    });
+
+    /* =========================
+       ORDENAÇÃO NUMÉRICA
+    ========================= */
+    pdfs.sort((a, b) => {
+      const na = a.name.match(/^(\d+)/);
+      const nb = b.name.match(/^(\d+)/);
+      return (na ? +na[1] : 9999) - (nb ? +nb[1] : 9999);
+    });
+
+    const totalFichas = pdfs.length;
+
+    /* =========================
+       RENDERIZAÇÃO DOS CARDS
+    ========================= */
+    function renderizar(lista, termo = "") {
+      ul.innerHTML = "";
+
+      if (!lista.length) {
+        ul.innerHTML = "<li>Nenhum PDF encontrado.</li>";
+        contador.textContent = `Mostrando 0 de ${totalFichas} fichas`;
+        return;
+      }
+
+      lista.forEach(f => {
+        const match = f.name.match(/^(\d+)/);
+        const numero = match ? match[1] : "—";
+
+        const imagem = imagensPorNumero[numero] || "";
+
+        const titulo = termo
+          ? destacar(f.name, termo)
+          : f.name;
+
+        const li = document.createElement("li");
+        li.className = "card-fispq";
+
+        li.innerHTML = `
+          <a class="card-link" href="${f.url}" target="_blank" rel="noopener">
+
+            <div class="card-img"
+              style="${imagem ? `background-image: url('${imagem}')` : ""}">
+            </div>
+
+            <div class="card-body">
+              <div class="card-num">${numero}</div>
+              <div class="card-title">${titulo}</div>
+              <div class="card-action">Abrir PDF</div>
+            </div>
+          </a>
+        `;
+
+        ul.appendChild(li);
+      });
+
+      contador.textContent = `Mostrando ${lista.length} de ${totalFichas} fichas`;
     }
 
-    pdfs.forEach(f => {
-      // Extrai número inicial (ex: 140)
-      const match = f.name.match(/^(\d+)/);
-      const numero = match ? match[1] : "—";
+    /* =========================
+       RENDER INICIAL
+    ========================= */
+    renderizar(pdfs);
 
-      const li = document.createElement("li");
-      li.className = "card-fispq";
+    /* =========================
+       BUSCA INTELIGENTE
+    ========================= */
+    busca.addEventListener("input", () => {
+      const termo = busca.value.trim();
+      const termoNorm = normalizarTexto(termo);
 
-      li.innerHTML = `
-        <a class="card-link" href="${f.url}" target="_blank" rel="noopener">
-          
-          <!-- BLOCO VISUAL (SEM IMAGEM) -->
-          <div class="card-img card-img-placeholder"></div>
+      const filtrados = pdfs.filter(f =>
+        normalizarTexto(f.name).includes(termoNorm)
+      );
 
-          <div class="card-body">
-            <div class="card-num">${numero}</div>
-            <div class="card-title">${f.name}</div>
-            <div class="card-action">Abrir PDF</div>
-          </div>
-        </a>
-      `;
-
-      ul.appendChild(li);
+      renderizar(filtrados, termo);
     });
   })
   .catch(err => {
+    console.error("Erro ao carregar dados:", err);
     document.getElementById("lista").innerHTML =
-      "<li>Erro ao carregar arquivos</li>";
-    console.error("Erro:", err);
+      "<li>Erro ao carregar arquivos.</li>";
   });
 </script>
 

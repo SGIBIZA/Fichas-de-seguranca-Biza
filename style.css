@@ -1,107 +1,106 @@
+/* ===== BASE ===== */
 body {
   font-family: Arial, sans-serif;
   padding: 20px;
+  background: #fff;
+  color: #000;
 }
 
-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  font-size: 16px;
+/* ===== TOPO ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0;
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.card {
-  border: 1px solid #ddd;
+/* Barra de busca */
+#busca {
+  width: 260px;
+  padding: 8px 12px;
+  font-size: 14px;
   border-radius: 8px;
-  padding: 10px;
-  text-align: center;
+  border: 1px solid #ccc;
+}
+
+/* Contador */
+.contador {
+  background: #e9eef5;
+  color: #1f3a5f;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ===== LISTA ===== */
+.lista-fispq {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* ===== CARD ===== */
+.card-fispq {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
   background: #fff;
 }
 
-.card img {
-  max-width: 100%;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.card h3 {
-  margin: 8px 0;
-}
-
-.card a {
-  display: inline-block;
-  margin-top: 8px;
+/* Link do card */
+.card-link {
+  display: block;
+  color: inherit;
   text-decoration: none;
-  background: #0056b3;
-  color: white;
+}
+
+/* IMAGEM DO CARD (via background-image no JS) */
+.card-img {
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f2f2f2; /* fallback */
+}
+
+/* Corpo */
+.card-body {
+  padding: 10px;
+}
+
+/* Número */
+.card-num {
+  font-weight: 700;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Título */
+.card-title {
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+/* Botão */
+.card-action {
+  margin-top: 10px;
+  display: inline-block;
+  font-size: 12px;
   padding: 6px 10px;
+  border-radius: 6px;
+  background: #0056b3;
+  color: #fff;
+}
+
+/* ===== DESTAQUE DE BUSCA ===== */
+mark {
+  background-color: #ffe08a;
+  padding: 0 4px;
   border-radius: 4px;
-}
-
-.lista-fispq{
-  list-style:none;
-  padding:0;
-  margin:0;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
-}
-
-.card-fispq{
-  border:1px solid #ddd;
-  border-radius:10px;
-  overflow:hidden;
-  background:#fff;
-}
-
-.card-link{
-  display:block;
-  color:inherit;
-  text-decoration:none;
-}
-
-.card-img img{
-  width:100%;
-  height:150px;
-  object-fit:cover;
-  display:block;
-  background:#f2f2f2;
-}
-
-.card-body{
-  padding:10px;
-}
-
-.card-num{
-  font-weight:700;
-  font-size:14px;
-  opacity:.8;
-}
-
-.card-title{
-  margin-top:6px;
-  font-size:14px;
-  line-height:1.3;
-}
-
-.card-action{
-  margin-top:10px;
-  display:inline-block;
-  font-size:12px;
-  padding:6px 10px;
-  border-radius:6px;
-  background:#0056b3;
-  color:#fff;
-}
-.card-img-placeholder {
-  background: #000;
-  height: 120px;
-  border-radius: 8px 8px 0 0;
 }
