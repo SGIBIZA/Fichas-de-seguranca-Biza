@@ -61,11 +61,11 @@ body {
 
 /* IMAGEM DO CARD (via background-image no JS) */
 .card-img {
-  height: 140px;
-  background-size: cover;
+  height: 220px;                 /* aumenta área visível */
+  background-size: contain;      /* NÃO corta a imagem */
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #f2f2f2; /* fallback */
+  background-color: #232323;     /* fundo neutro elegante */
 }
 
 /* Corpo */
@@ -103,4 +103,35 @@ mark {
   background-color: #ffe08a;
   padding: 0 4px;
   border-radius: 4px;
+}
+@media (max-width: 600px) {
+
+  .top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #busca {
+    width: 100%;
+  }
+
+  .contador {
+    text-align: center;
+    width: fit-content;
+    align-self: center;
+  }
+
+  .card-img {
+    height: 260px;   /* imagem ainda mais visível no mobile */
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  .card-action {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
 }
